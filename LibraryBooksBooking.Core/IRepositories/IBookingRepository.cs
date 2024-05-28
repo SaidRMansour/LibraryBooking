@@ -4,7 +4,7 @@ namespace LibraryBooksBooking.Core.IRepositories;
 
 public interface IBookingRepository : IRepository<Booking>
 {
-    Task<IEnumerable<Book>> GetBooksByGenreAsync(string genre);
-    Task<Book> GetBookByISBNAsync(string isbn);
-    Task<IEnumerable<Book>> GetBooksByAuthorAsync(string author);
+    Task<IEnumerable<Booking>> GetBookingsByBookAsync(string bookGuid);
+    Task<IEnumerable<Book>> GetAvailableBooksAsync(DateTime start, DateTime end);
+    Task<IEnumerable<Booking>> GetBookingsByCustomerGuidAsync(string customerGuid);
 }

@@ -1,5 +1,11 @@
+using LibraryBooksBooking.Core.IRepositories;
+using LibraryBooksBooking.Core.IServices;
+using LibraryBooksBooking.Core.Models;
 using LibraryBooksBooking.Infrastructure.EfCore;
 using LibraryBooksBooking.Infrastructure.EfCore.DbInitializer;
+using LibraryBooksBooking.Infrastructure.EfCore.Repositories;
+using LibraryBooksBooking.Infrastructure.Service;
+using LibraryBooksBooking.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +13,14 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddDbContext<LibraryBooksDbContext>(opt => opt.UseSqlite("Data Source=LibraryBooksDB.db"));
 builder.Services.AddTransient<IDbInitializer<LibraryBooksDbContext>, DbInitializer>();
+
+builder.Services.AddScoped<IRepository<Booking>, BookingRepository>();
+builder.Services.AddScoped<IRepository<Customer>, CustomerRepository>();
+builder.Services.AddScoped<IRepository<Book>, BookRepository>();
+
+builder.Services.AddScoped<IService<Booking>, BookingService>();
+builder.Services.AddScoped<IService<Customer>, CustomerService>();
+builder.Services.AddScoped<IService<Book>, BookService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

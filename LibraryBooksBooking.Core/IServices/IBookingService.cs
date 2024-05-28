@@ -2,9 +2,9 @@
 
 namespace LibraryBooksBooking.Core.IServices;
 
-public interface IBookingService
+public interface IBookingService : IService<Booking>
 {
-    IEnumerable<Booking> GetBookingsByBookAsync(string bookGuid);
-    IEnumerable<Book> GetAvailableBooksAsync(DateTime start, DateTime end);
-    IEnumerable<Book> GetBookingsByCustomerGuidAsync(string customerGuid);
+    Task<IEnumerable<Booking>> GetBookingsByBookAsync(string bookGuid);
+    Task<IEnumerable<Book>> GetAvailableBooksAsync(DateTime start, DateTime end);
+    Task<IEnumerable<Booking>> GetBookingsByCustomerGuidAsync(string customerGuid);
 }

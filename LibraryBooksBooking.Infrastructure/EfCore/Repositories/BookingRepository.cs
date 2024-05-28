@@ -44,18 +44,20 @@ public class BookingRepository : IBookingRepository
         return entity;
     }
 
-    public async Task<IEnumerable<Book>> GetBooksByGenreAsync(string genre)
+    public async Task<IEnumerable<Booking>> GetBookingsByBookAsync(string bookGuid)
     {
-        return await _context.Books.Where(b => b.Genre == genre).ToListAsync();
+        return await _context.Bookings.Where(b => b.BookGuid == bookGuid).ToListAsync();
     }
 
-    public async Task<Book> GetBookByISBNAsync(string isbn)
+    public async Task<IEnumerable<Book>> GetAvailableBooksAsync(DateTime start, DateTime end)
     {
-        return await _context.Books.FirstOrDefaultAsync(b => b.ISBN == isbn);
+        var bookings = await _context.Bookings.Where(b => b.BookingDate >= start && b.ReturnDate <= end).ToListAsync();
+        
+        return await _context.Books.Where(b => !bookings.Select(b => b.BookGuid).Contains(b.Guid)).ToListAsync();
     }
 
-    public async Task<IEnumerable<Book>> GetBooksByAuthorAsync(string author)
+    public async Task<IEnumerable<Booking>> GetBookingsByCustomerGuidAsync(string customerGuid)
     {
-        return await _context.Books.Where(b => b.Author == author).ToListAsync();
+        return await _context.Bookings.Where(b => b.CustomerGuid == customerGuid).ToListAsync();
     }
 }
