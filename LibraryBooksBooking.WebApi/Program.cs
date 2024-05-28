@@ -14,13 +14,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<LibraryBooksDbContext>(opt => opt.UseSqlite("Data Source=LibraryBooksDB.db"));
 builder.Services.AddTransient<IDbInitializer<LibraryBooksDbContext>, DbInitializer>();
 
-builder.Services.AddScoped<IRepository<Booking>, BookingRepository>();
-builder.Services.AddScoped<IRepository<Customer>, CustomerRepository>();
-builder.Services.AddScoped<IRepository<Book>, BookRepository>();
+builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<IBookRepository, BookRepository>();
 
-builder.Services.AddScoped<IService<Booking>, BookingService>();
-builder.Services.AddScoped<IService<Customer>, CustomerService>();
-builder.Services.AddScoped<IService<Book>, BookService>();
+builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IBookService, BookService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
