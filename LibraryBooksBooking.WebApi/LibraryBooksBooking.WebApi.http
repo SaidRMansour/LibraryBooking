@@ -1,6 +1,0 @@
-@LibraryBooksBooking.WebApi_HostAddress = http://localhost:5096
-
-GET {{LibraryBooksBooking.WebApi_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

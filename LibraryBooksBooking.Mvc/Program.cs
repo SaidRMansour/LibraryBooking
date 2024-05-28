@@ -1,15 +1,34 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using LibraryBooksBooking.Infrastructure.EfCore;
+using LibraryBooksBooking.Infrastructure.EfCore.DbInitializer;
+using Microsoft.EntityFrameworkCore;
+
+var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddDbContext<LibraryBooksDbContext>(opt => opt.UseSqlite("Data Source=LibraryBooksDB.db"));
+builder.Services.AddTransient<IDbInitializer<LibraryBooksDbContext>, DbInitializer>();
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+    
+    using var scope = app.Services.CreateScope();
+    var services = scope.ServiceProvider;
+    var dbContext = services.GetService<LibraryBooksDbContext>();
+    var dbInitializer = services.GetService<IDbInitializer<LibraryBooksDbContext>>();
+    dbInitializer.Initialize(dbContext);
+}
+else
 {
     app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
 }
+
 app.UseStaticFiles();
 
 app.UseRouting();
