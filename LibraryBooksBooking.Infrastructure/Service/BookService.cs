@@ -15,6 +15,11 @@ public class BookService : IBookService
 
     public async Task<Book> AddAsync(Book entity)
     {
+        if (entity.PublishedDate > DateTime.Now)
+        {
+            throw new ArgumentException("PublishedDate cannot be in the future.");
+        }
+
         return await _bookRepository.AddAsync(entity);
     }
 
@@ -30,6 +35,11 @@ public class BookService : IBookService
 
     public async Task<Book> UpdateAsync(Book entity)
     {
+        if (entity.PublishedDate > DateTime.Now)
+        {
+            throw new ArgumentException("PublishedDate cannot be in the future.");
+        }
+
         return await _bookRepository.EditAsync(entity);
     }
 
