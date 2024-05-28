@@ -2,9 +2,9 @@
 
 public interface IRepository<T>
 {
-    T AddAsync(T entity);
-    IEnumerable<T> GetAllAsync();
-    T GetAsync(string id);
-    T EditAsync(T entity);
-    T RemoveAsync(T entity);
+    Task<T> AddAsync(T entity);
+    Task<IEnumerable<T>> GetAllAsync();
+    Task<T> GetAsync(string id);
+    Task<T> EditAsync(T entity);
+    Task<T> RemoveAsync(T entity);
 }
