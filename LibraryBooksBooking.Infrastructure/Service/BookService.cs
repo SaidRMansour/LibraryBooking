@@ -6,9 +6,9 @@ namespace LibraryBooksBooking.Services;
 
 public class BookService : IBookService
 {
-    private readonly IBookRepository _bookRepository;
+    private readonly IRepository<Book> _bookRepository;
 
-    public BookService(IBookRepository bookRepository)
+    public BookService(IRepository<Book> bookRepository)
     {
         _bookRepository = bookRepository;
     }
@@ -40,16 +40,19 @@ public class BookService : IBookService
 
     public async Task<IEnumerable<Book>> GetBooksByGenreAsync(string genre)
     {
-        return await _bookRepository.GetBooksByGenreAsync(genre);
+        var books = await _bookRepository.GetAllAsync();
+        return books.Where(b => b.Genre == genre);
     }
 
     public async Task<Book> GetBookByISBNAsync(string isbn)
     {
-        return await _bookRepository.GetBookByISBNAsync(isbn);
+        var books = await _bookRepository.GetAllAsync();
+        return books.FirstOrDefault(b => b.ISBN == isbn);
     }
 
     public async Task<IEnumerable<Book>> GetBooksByAuthorAsync(string author)
     {
-        return await _bookRepository.GetBooksByAuthorAsync(author);
+        var books = await _bookRepository.GetAllAsync();
+        return books.Where(b => b.Author == author);
     }
 }

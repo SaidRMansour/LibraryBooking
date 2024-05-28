@@ -14,9 +14,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<LibraryBooksDbContext>(opt => opt.UseSqlite("Data Source=LibraryBooksDB.db"));
 builder.Services.AddTransient<IDbInitializer<LibraryBooksDbContext>, DbInitializer>();
 
-builder.Services.AddScoped<IBookingRepository, BookingRepository>();
-builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
-builder.Services.AddScoped<IBookRepository, BookRepository>();
+builder.Services.AddScoped<IRepository<Booking>, BookingRepository>();
+builder.Services.AddScoped<IRepository<Customer>, CustomerRepository>();
+builder.Services.AddScoped<IRepository<Book>, BookRepository>();
 
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LibraryBooksBooking.Infrastructure.EfCore.Repositories;
 
-public class CustomerRepository : ICustomerRepository
+public class CustomerRepository : IRepository<Customer>
 {
     private readonly LibraryBooksDbContext _context;
 
@@ -42,15 +42,5 @@ public class CustomerRepository : ICustomerRepository
         _context.Customers.Remove(entity);
         await _context.SaveChangesAsync();
         return entity;
-    }
-
-    public async Task<Customer> GetCustomerByEmailAsync(string email)
-    {
-        return await _context.Customers.FirstOrDefaultAsync(c => c.Email == email);
-    }
-
-    public async Task<IEnumerable<Booking>> GetCustomerBookingsAsync(string customerGuid)
-    {
-        return await _context.Bookings.Where(b => b.CustomerGuid == customerGuid).ToListAsync();
     }
 }

@@ -6,9 +6,9 @@ namespace LibraryBooksBooking.Infrastructure.Service;
 
 public class BookingService : IBookingService
 {
-    private readonly IBookingRepository _bookingRepo;
+    private readonly IRepository<Booking> _bookingRepo;
 
-    public BookingService(IBookingRepository bookingRepo)
+    public BookingService(IRepository<Booking> bookingRepo)
     {
         _bookingRepo = bookingRepo;
     }
@@ -40,16 +40,20 @@ public class BookingService : IBookingService
 
     public async Task<IEnumerable<Booking>> GetBookingsByBookAsync(string bookGuid)
     {
-        return await _bookingRepo.GetBookingsByBookAsync(bookGuid);
+        var bookings = await _bookingRepo.GetAllAsync();
+        return bookings.Where(b => b.BookGuid == bookGuid);
     }
 
     public async Task<IEnumerable<Book>> GetAvailableBooksAsync(DateTime start, DateTime end)
     {
-        return await _bookingRepo.GetAvailableBooksAsync(start, end);
+        var bookings = await _bookingRepo.GetAllAsync();
+        var bookedBooks = bookings.Where(b => b.BookingDate <= end && b.ReturnDate >= start).Select(b => b.BookGuid);
+        return bookings.Where(b => !bookedBooks.Contains(b.Guid)).Select(b => new Book { Guid = b.BookGuid });
     }
 
     public async Task<IEnumerable<Booking>> GetBookingsByCustomerGuidAsync(string customerGuid)
     {
-        return await _bookingRepo.GetBookingsByCustomerGuidAsync(customerGuid);
+        var bookings = await _bookingRepo.GetAllAsync();
+        return bookings.Where(b => b.CustomerGuid == customerGuid);
     }
 }

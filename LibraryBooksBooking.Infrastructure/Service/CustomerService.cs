@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using LibraryBooksBooking.Core.IRepositories;
+﻿using LibraryBooksBooking.Core.IRepositories;
 using LibraryBooksBooking.Core.IServices;
 using LibraryBooksBooking.Core.Models;
 
@@ -9,10 +6,10 @@ namespace LibraryBooksBooking.Services
 {
     public class CustomerService : ICustomerService
     {
-        private readonly ICustomerRepository _customerRepository;
-        private readonly IBookingRepository _bookingRepository;
+        private readonly IRepository<Customer> _customerRepository;
+        private readonly IRepository<Booking> _bookingRepository;
 
-        public CustomerService(ICustomerRepository customerRepository, IBookingRepository bookingRepository)
+        public CustomerService(IRepository<Customer> customerRepository, IRepository<Booking> bookingRepository)
         {
             _customerRepository = customerRepository;
             _bookingRepository = bookingRepository;
@@ -45,12 +42,14 @@ namespace LibraryBooksBooking.Services
 
         public async Task<Customer> GetCustomerByEmailAsync(string email)
         {
-            return await _customerRepository.GetCustomerByEmailAsync(email);
+            var customers = await _customerRepository.GetAllAsync();
+            return customers.FirstOrDefault(c => c.Email == email);
         }
 
         public async Task<IEnumerable<Booking>> GetCustomerBookingsAsync(string customerGuid)
         {
-            return await _customerRepository.GetCustomerBookingsAsync(customerGuid);
+            var bookings = await _bookingRepository.GetAllAsync();
+            return bookings.Where(b => b.CustomerGuid == customerGuid);
         }
     }
 }

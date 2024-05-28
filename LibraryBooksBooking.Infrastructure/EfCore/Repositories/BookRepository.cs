@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LibraryBooksBooking.Infrastructure.EfCore.Repositories;
 
-public class BookRepository : IBookRepository
+public class BookRepository : IRepository<Book>
 {
     private readonly LibraryBooksDbContext _context;
 
@@ -42,20 +42,5 @@ public class BookRepository : IBookRepository
         _context.Books.Remove(entity);
         await _context.SaveChangesAsync();
         return entity;
-    }
-
-    public async Task<IEnumerable<Book>> GetBooksByGenreAsync(string genre)
-    {
-        return await _context.Books.Where(b => b.Genre == genre).ToListAsync();
-    }
-
-    public async Task<Book> GetBookByISBNAsync(string isbn)
-    {
-        return await _context.Books.FirstOrDefaultAsync(b => b.ISBN == isbn);
-    }
-
-    public async Task<IEnumerable<Book>> GetBooksByAuthorAsync(string author)
-    {
-        return await _context.Books.Where(b => b.Author == author).ToListAsync();
     }
 }
