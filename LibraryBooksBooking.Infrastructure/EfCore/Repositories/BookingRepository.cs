@@ -23,12 +23,18 @@ public class BookingRepository : IRepository<Booking>
 
     public async Task<IEnumerable<Booking>> GetAllAsync()
     {
-        return await _context.Bookings.ToListAsync();
+        return await _context.Bookings
+            .Include(b => b.Customer)
+            .Include(b => b.Book)
+            .ToListAsync();
     }
 
     public async Task<Booking> GetByIdAsync(string id)
     {
-        return await _context.Bookings.FirstOrDefaultAsync(b => b.Guid == id);
+        return await _context.Bookings
+            .Include(b => b.Customer)
+            .Include(b => b.Book)
+            .FirstOrDefaultAsync(b => b.Guid == id);
     }
 
     public async Task<Booking> EditAsync(Booking entity)

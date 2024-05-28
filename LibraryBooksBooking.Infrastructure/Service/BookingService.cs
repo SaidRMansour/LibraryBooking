@@ -34,10 +34,22 @@ namespace LibraryBooksBooking.Infrastructure.Service
             return await _bookingRepo.GetByIdAsync(id);
         }
 
-        public async Task<Booking> UpdateAsync(Booking entity)
+        public async Task<Booking> UpdateAsync(Booking booking)
         {
-            return await _bookingRepo.EditAsync(entity);
+            // Validate booking dates
+            if (booking.BookingDate.Date < DateTime.Today)
+            {
+                throw new InvalidOperationException("Booking date must be today or in the future.");
+            }
+
+            if (booking.ReturnDate.Date <= booking.BookingDate.Date)
+            {
+                throw new InvalidOperationException("Return date must be after the booking date.");
+            }
+
+            return await _bookingRepo.EditAsync(booking);
         }
+
 
         public async Task<Booking> DeleteAsync(Booking entity)
         {
@@ -60,9 +72,25 @@ namespace LibraryBooksBooking.Infrastructure.Service
 
         public async Task<Booking> CreateBookingAsync(Booking booking)
         {
+            // Validate booking dates
+            if (booking.BookingDate.Date < DateTime.Today)
+            {
+                throw new InvalidOperationException("Booking date must be today or in the future.");
+            }
+
+            if (booking.ReturnDate.Date <= booking.BookingDate.Date)
+            {
+                throw new InvalidOperationException("Return date must be after the booking date.");
+            }
+
+            // Check book availability
             var availableBooks = await GetAvailableBooksAsync(booking.BookingDate, booking.ReturnDate);
             var book = availableBooks.FirstOrDefault(b => b.Guid == booking.BookGuid);
-            if (book == null) throw new InvalidOperationException("Book is not available");
+            if (book == null)
+            {
+                throw new InvalidOperationException("Book is not available");
+            }
+
             booking.IsAvailable = true;
             var bookingNew = await _bookingRepo.AddAsync(booking);
             return bookingNew;
