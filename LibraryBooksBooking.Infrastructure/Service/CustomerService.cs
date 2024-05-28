@@ -1,18 +1,21 @@
 ﻿using LibraryBooksBooking.Core.IRepositories;
 using LibraryBooksBooking.Core.IServices;
 using LibraryBooksBooking.Core.Models;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace LibraryBooksBooking.Services
 {
     public class CustomerService : ICustomerService
     {
         private readonly IRepository<Customer> _customerRepository;
-        private readonly IRepository<Booking> _bookingRepository;
+        private readonly IBookingService _bookingService;
 
-        public CustomerService(IRepository<Customer> customerRepository, IRepository<Booking> bookingRepository)
+        public CustomerService(IRepository<Customer> customerRepository, IBookingService bookingService)
         {
             _customerRepository = customerRepository;
-            _bookingRepository = bookingRepository;
+            _bookingService = bookingService;
         }
 
         public async Task<Customer> AddAsync(Customer entity)
@@ -48,8 +51,7 @@ namespace LibraryBooksBooking.Services
 
         public async Task<IEnumerable<Booking>> GetCustomerBookingsAsync(string customerGuid)
         {
-            var bookings = await _bookingRepository.GetAllAsync();
-            return bookings.Where(b => b.CustomerGuid == customerGuid);
+            return await _bookingService.GetBookingsByCustomerGuidAsync(customerGuid);
         }
     }
 }
