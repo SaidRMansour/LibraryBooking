@@ -15,6 +15,7 @@ public class CustomerRepository : IRepository<Customer>
 
     public async Task<Customer> AddAsync(Customer entity)
     {
+        entity.Guid = Guid.NewGuid().ToString();
         await _context.Customers.AddAsync(entity);
         await _context.SaveChangesAsync();
         return entity;

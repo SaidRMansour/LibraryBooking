@@ -15,6 +15,7 @@ public class BookingRepository : IRepository<Booking>
 
     public async Task<Booking> AddAsync(Booking entity)
     {
+        entity.Guid = Guid.NewGuid().ToString();
         await _context.Bookings.AddAsync(entity);
         await _context.SaveChangesAsync();
         return entity;

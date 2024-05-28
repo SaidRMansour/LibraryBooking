@@ -58,17 +58,14 @@ namespace LibraryBooksBooking.Infrastructure.Service
             return books.Where(b => !bookedBooks.Contains(b.Guid));
         }
 
-        public async Task<bool> CreateBookingAsync(Booking booking)
+        public async Task<Booking> CreateBookingAsync(Booking booking)
         {
             var availableBooks = await GetAvailableBooksAsync(booking.BookingDate, booking.ReturnDate);
             var book = availableBooks.FirstOrDefault(b => b.Guid == booking.BookGuid);
-            if (book != null)
-            {
-                booking.IsAvailable = true;
-                await _bookingRepo.AddAsync(booking);
-                return true;
-            }
-            return false;
+            if (book == null) throw new InvalidOperationException("Book is not available");
+            booking.IsAvailable = true;
+            var bookingNew = await _bookingRepo.AddAsync(booking);
+            return bookingNew;
         }
 
         public async Task<IEnumerable<Booking>> GetBookingsByCustomerGuidAsync(string customerGuid)
