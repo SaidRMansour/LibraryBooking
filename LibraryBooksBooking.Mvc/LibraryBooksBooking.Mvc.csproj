@@ -20,10 +20,12 @@
     <None Remove="Views\Booking\" />
     <None Remove="Views\Customer\" />
     <None Remove="Views\Book\" />
+    <None Remove="Assets\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\Booking\" />
     <Folder Include="Views\Customer\" />
     <Folder Include="Views\Book\" />
+    <Folder Include="Assets\" />
   </ItemGroup>
 </Project>

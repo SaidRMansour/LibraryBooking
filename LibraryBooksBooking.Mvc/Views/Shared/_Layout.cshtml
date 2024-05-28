@@ -7,12 +7,15 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/LibraryBooksBooking.Mvc.styles.css" asp-append-version="true" />
+    
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Booking" asp-action="Index">S&K Library</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Booking" asp-action="Index">
+                    <img id="logo" alt="S&K Library Logo" style="height:40px; margin-right:10px;" />
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -20,15 +23,21 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <!-- put another like Createbooking and so on...
-            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-        -->
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Booking" asp-action="Index">Forside</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Customer" asp-action="Index">Customer</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Book" asp-action="Index">Book</a>
+                    </ul>
+                </div>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1"></ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle btn btn-outline-danger" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Admin
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Customer" asp-action="Index">Customers</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Book" asp-action="Index">Books</a></li>
+                            </ul>
                         </li>
                     </ul>
                 </div>
@@ -43,13 +52,20 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2024 - S&K Library
+            <img id="logoFooter" alt="S&K Library Logo" style="height:40px; margin-right:10px;" />
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        var logoSource = "https://lh3.googleusercontent.com/pw/AP1GczPek8m4jkxr-j7UpuekH5eyJxGgSI2UNahABOsZnIToRD9Zl-zlniXy6M0QtuQTLp9DH67DV3zi8si8FTcrHdivg4U1OO7etkZ6tRyPR5MZLzjY95c9-y1017E98T3ha2fZ0LlhI2kXIxjFuyGGwubWsbR4yZHbJZqVKjjoQni4nk_lyvpQP_Z9seCZI0s_JiuzqSFCdNgdqCM8aVBdvOX7r65TIshvQOgVg5f23aQDJ6kP6ZrDqg0i4a3ce77ZCmWhFUrElVGseU89R68EJxAweFqGp7GuDY6ibn2UEG7d-TWOxyzeU2WETrxVcLNqIKDlJEMc0SUK9nwnntkhN0z-AYOU3g2u7xoS7OAW2RU4WCRLWguhrQroD6xDUknqPXx9B30akSxDgT8XathRzIcbGJYiJ9DX9WWZrn3ILkIyZYiugMggLlmJJ3ic3RhtgqYQA-4-q3GIKxAxDmqzrV_WTn7otN3L8BQEzvGQBm2pvoZwag91d_8gKmuhw-tGu-lyVqdcs5OgYGs7QAwsuI1yImgYs1gYAD32hCKxlYzoL22aj0CHO7pTpctAO_04ZV2AFWzWROXYAd5wF2_ktWl9gbQ43YQHyWraR_DNkkmzZWgpzYmZsbACNPO_Fs7Og09GUKtPeZFnjho6QK7CVSKdmx82vacP516V0mp3B0bHr4BlMtulYLC6lCZBmPPNlhOqyPQdJBs4pRe9NwBxBVkjTf_SjeBqPWbUlJU2W_aK99k8eIBYO_35QhOjfn5slbxmHF_K2NN_oi8wpf0B0DOZs0D2P-MfqdCRnZQN3RAWUh_HQVM6T-L8o2yW7nGaf5zortAMdytLKiG6AYZB8U1hFHDmpFMKceFHlCK-8t73R95C-fs9lT8eipVv3QcFJXDObeB9xr9X5i3S6LCzZzMcCtBi_X405wUga8CBJ8Sl7D_N6oWzgNNpZVnMNxCWvPHo3v8Zi239WqtAxpu6SGE=w1594-h457-s-no?authuser=0";
+        document.getElementById("logo").src = logoSource;
+        document.getElementById("logoFooter").src = logoSource;
+
+    </script>
 </body>
 </html>
 

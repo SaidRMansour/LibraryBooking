@@ -81,13 +81,14 @@ namespace LibraryBooksBooking.Mvc.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", $"An error occurred while creating the booking: {ex.Message}");
+                return RedirectToAction("Error", new { exMessage = ex.Message });
             }
 
             ViewData["CustomerId"] = new SelectList(await _customerService.GetAllAsync(), "Guid", "Name", booking.CustomerGuid);
             ViewData["BookId"] = new SelectList(await _bookService.GetAllAsync(), "Guid", "Title", booking.BookGuid);
             return View(booking);
         }
+
 
 
         // GET: Booking/Edit/5
@@ -105,6 +106,8 @@ namespace LibraryBooksBooking.Mvc.Controllers
             }
             ViewData["CustomerId"] = new SelectList(await _customerService.GetAllAsync(), "Guid", "Name", booking.CustomerGuid);
             ViewData["BookId"] = new SelectList(await _bookService.GetAllAsync(), "Guid", "Title", booking.BookGuid);
+            ViewData["BookingDate"] = booking.BookingDate.ToString("yyyy-MM-dd");
+            ViewData["ReturnDate"] = booking.ReturnDate.ToString("yyyy-MM-dd");
             return View(booking);
         }
 
@@ -117,14 +120,16 @@ namespace LibraryBooksBooking.Mvc.Controllers
             {
                 return NotFound();
             }
-
+            ModelState.Remove(nameof(booking.Customer));
+            ModelState.Remove(nameof(booking.Book));
             if (ModelState.IsValid)
             {
                 try
                 {
                     await _bookingService.UpdateAsync(booking);
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateConcurrencyException ex)
                 {
                     if (await _bookingService.GetByIdAsync(booking.Guid) == null)
                     {
@@ -132,15 +137,19 @@ namespace LibraryBooksBooking.Mvc.Controllers
                     }
                     else
                     {
-                        throw;
+                        return RedirectToAction("Error", new { exMessage = ex.Message });
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                catch (Exception ex)
+                {
+                    return RedirectToAction("Error", new { exMessage = ex.Message });
+                }
             }
             ViewData["CustomerId"] = new SelectList(await _customerService.GetAllAsync(), "Guid", "Name", booking.CustomerGuid);
             ViewData["BookId"] = new SelectList(await _bookService.GetAllAsync(), "Guid", "Title", booking.BookGuid);
             return View(booking);
         }
+
 
         // GET: Booking/Delete/5
         public async Task<IActionResult> Delete(string id)
@@ -164,18 +173,25 @@ namespace LibraryBooksBooking.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var booking = await _bookingService.GetByIdAsync(id);
-            if (booking != null)
+            try
             {
-                await _bookingService.DeleteAsync(booking);
+                var booking = await _bookingService.GetByIdAsync(id);
+                if (booking != null)
+                {
+                    await _bookingService.DeleteAsync(booking);
+                }
+                return RedirectToAction(nameof(Index));
             }
-            return RedirectToAction(nameof(Index));
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", new { exMessage = ex.Message });
+            }
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        public IActionResult Error(string exMessage = null)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, ExMessage = exMessage ?? "" });
         }
     }
 }

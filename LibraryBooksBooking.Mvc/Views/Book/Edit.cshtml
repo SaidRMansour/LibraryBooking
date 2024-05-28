@@ -13,28 +13,28 @@
         <form asp-action="Edit">
             <input asp-for="Guid" hidden />
             <div class="form-group">
-                <label asp-for="Title" class="control-label font-weight-bold"></label>
+                <label asp-for="Title" class="control-label"></label>
                 <input asp-for="Title" class="form-control" />
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Author" class="control-label font-weight-bold"></label>
+                <label asp-for="Author" class="control-label"></label>
                 <input asp-for="Author" class="form-control" />
                 <span asp-validation-for="Author" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ISBN" class="control-label font-weight-bold"></label>
+                <label asp-for="ISBN" class="control-label"></label>
                 <input asp-for="ISBN" class="form-control" />
                 <span asp-validation-for="ISBN" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Genre" class="control-label font-weight-bold"></label>
+                <label asp-for="Genre" class="control-label"></label>
                 <input asp-for="Genre" class="form-control" />
                 <span asp-validation-for="Genre" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="PublishedDate" class="control-label font-weight-bold"></label>
-                <input asp-for="PublishedDate" class="form-control" type="date" value="@ViewData["FormattedPublishedDate"]" />
+                <label asp-for="PublishedDate" class="control-label"></label>
+                <input asp-for="PublishedDate" class="form-control" type="date" value="@ViewData["FormattedPublishedDate"]"/>
                 <span asp-validation-for="PublishedDate" class="text-danger"></span>
             </div>
             <div class="form-group" style="margin-top: 5%">

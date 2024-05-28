@@ -1,7 +1,9 @@
 ﻿using LibraryBooksBooking.Core.IServices;
 using LibraryBooksBooking.Core.Models;
+using LibraryBooksBooking.Mvc.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace LibraryBooksBooking.Mvc.Controllers
@@ -30,13 +32,20 @@ namespace LibraryBooksBooking.Mvc.Controllers
                 return NotFound();
             }
 
-            var customer = await _customerService.GetByIdAsync(id);
-            if (customer == null)
+            try
             {
-                return NotFound();
-            }
+                var customer = await _customerService.GetByIdAsync(id);
+                if (customer == null)
+                {
+                    return NotFound();
+                }
 
-            return View(customer);
+                return View(customer);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", new { exMessage = ex.Message });
+            }
         }
 
         // GET: Customer/Create
@@ -65,11 +74,9 @@ namespace LibraryBooksBooking.Mvc.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", $"An error occurred while creating the customer: {ex.Message}");
-                return View(customer);
+                return RedirectToAction("Error", new { exMessage = ex.Message });
             }
         }
-
 
         // GET: Customer/Edit/5
         public async Task<IActionResult> Edit(string id)
@@ -79,12 +86,20 @@ namespace LibraryBooksBooking.Mvc.Controllers
                 return NotFound();
             }
 
-            var customer = await _customerService.GetByIdAsync(id);
-            if (customer == null)
+            try
             {
-                return NotFound();
+                var customer = await _customerService.GetByIdAsync(id);
+                if (customer == null)
+                {
+                    return NotFound();
+                }
+
+                return View(customer);
             }
-            return View(customer);
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", new { exMessage = ex.Message });
+            }
         }
 
         // POST: Customer/Edit/5
@@ -97,24 +112,19 @@ namespace LibraryBooksBooking.Mvc.Controllers
                 return NotFound();
             }
 
+            ModelState.Remove(nameof(customer.Bookings));
+
             if (ModelState.IsValid)
             {
                 try
                 {
                     await _customerService.UpdateAsync(customer);
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception ex)
                 {
-                    if (await _customerService.GetByIdAsync(customer.Guid) == null)
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    return RedirectToAction("Error", new { exMessage = ex.Message });
                 }
-                return RedirectToAction(nameof(Index));
             }
             return View(customer);
         }
@@ -127,13 +137,20 @@ namespace LibraryBooksBooking.Mvc.Controllers
                 return NotFound();
             }
 
-            var customer = await _customerService.GetByIdAsync(id);
-            if (customer == null)
+            try
             {
-                return NotFound();
-            }
+                var customer = await _customerService.GetByIdAsync(id);
+                if (customer == null)
+                {
+                    return NotFound();
+                }
 
-            return View(customer);
+                return View(customer);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", new { exMessage = ex.Message });
+            }
         }
 
         // POST: Customer/Delete/5
@@ -141,12 +158,25 @@ namespace LibraryBooksBooking.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var customer = await _customerService.GetByIdAsync(id);
-            if (customer != null)
+            try
             {
-                await _customerService.DeleteAsync(customer);
+                var customer = await _customerService.GetByIdAsync(id);
+                if (customer != null)
+                {
+                    await _customerService.DeleteAsync(customer);
+                }
+                return RedirectToAction(nameof(Index));
             }
-            return RedirectToAction(nameof(Index));
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", new { exMessage = ex.Message });
+            }
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error(string exMessage = null)
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, ExMessage = exMessage ?? "" });
         }
     }
 }
