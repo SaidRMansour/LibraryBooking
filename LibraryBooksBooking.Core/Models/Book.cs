@@ -8,4 +8,5 @@ public class Book
     public string ISBN { get; set; }
     public string Genre { get; set; }
     public DateTime PublishedDate { get; set; }
+    public virtual IEnumerable<Booking> Bookings { get; set; }
 }

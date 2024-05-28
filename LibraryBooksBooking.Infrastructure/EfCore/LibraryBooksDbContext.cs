@@ -15,14 +15,24 @@ public class LibraryBooksDbContext(DbContextOptions<LibraryBooksDbContext> optio
         modelBuilder.Entity<Customer>().HasKey(x => x.Guid);
         modelBuilder.Entity<Booking>().HasKey(x => x.Guid);
         
-        modelBuilder.Entity<Booking>()
-            .HasOne(x => x.Customer)
-            .WithMany()
+        modelBuilder.Entity<Customer>()
+            .HasMany(x => x.Bookings)
+            .WithOne(x => x.Customer)
             .HasForeignKey(x => x.CustomerGuid);
         
+        modelBuilder.Entity<Book>()
+            .HasMany(x => x.Bookings)
+            .WithOne(x => x.Book)
+            .HasForeignKey(x => x.BookGuid);
+        
+        modelBuilder.Entity<Booking>()
+            .HasOne(x => x.Customer)
+            .WithMany(x => x.Bookings)
+            .HasForeignKey(x => x.CustomerGuid);
+
         modelBuilder.Entity<Booking>()
             .HasOne(x => x.Book)
-            .WithMany()
+            .WithMany(x => x.Bookings)
             .HasForeignKey(x => x.BookGuid);
     }
 }
