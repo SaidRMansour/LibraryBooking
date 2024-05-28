@@ -4,7 +4,7 @@ public class DbInitializer : IDbInitializer<LibraryBooksDbContext>
 {
     public void Initialize(LibraryBooksDbContext context)
     {
-        context.Database.EnsureDeleted();
+        //context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
     }
 }
