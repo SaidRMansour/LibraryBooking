@@ -16,4 +16,14 @@
   <ItemGroup>
     <ProjectReference Include="..\LibraryBooksBooking.Infrastructure\LibraryBooksBooking.Infrastructure.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="Views\Booking\" />
+    <None Remove="Views\Customer\" />
+    <None Remove="Views\Book\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Views\Booking\" />
+    <Folder Include="Views\Customer\" />
+    <Folder Include="Views\Book\" />
+  </ItemGroup>
 </Project>

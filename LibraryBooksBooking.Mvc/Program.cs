@@ -39,7 +39,7 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseExceptionHandler("/Booking/Error");
     app.UseHsts();
 }
 
@@ -51,7 +51,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Booking}/{action=Index}/{id?}");
 
 app.Run();
 
