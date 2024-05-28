@@ -1,11 +1,12 @@
 ﻿using System;
+using LibraryBooksBooking.Core.Models;
+
 namespace LibraryBooksBooking.Core.IServices
 {
-	public class ICustomerService
-	{
-		public ICustomerService()
-		{
-		}
-	}
+    public interface ICustomerService : IService<Customer>
+    {
+        Task<Customer> GetCustomerByEmailAsync(string email);
+        Task<IEnumerable<Booking>> GetCustomerBookingsAsync(string customerGuid);
+    }
 }
 

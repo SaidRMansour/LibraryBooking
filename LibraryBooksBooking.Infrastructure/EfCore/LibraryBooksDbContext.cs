@@ -3,18 +3,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LibraryBooksBooking.Infrastructure.EfCore;
 
-public class LibraryBooksDbContext(DbContextOptions<LibraryBooksDbContext> options) : DbContext(options)
+public class LibraryBooksDbContext : DbContext
 {
+    public LibraryBooksDbContext(DbContextOptions<LibraryBooksDbContext> options) : base(options) {}
+
     public DbSet<Book> Books { get; set; }
     public DbSet<Customer> Customers { get; set; }
     public DbSet<Booking> Bookings { get; set; }
-    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Book>().HasKey(x => x.Guid);
         modelBuilder.Entity<Customer>().HasKey(x => x.Guid);
         modelBuilder.Entity<Booking>().HasKey(x => x.Guid);
-        
+
         modelBuilder.Entity<Customer>()
             .HasMany(x => x.Bookings)
             .WithOne(x => x.Customer)
