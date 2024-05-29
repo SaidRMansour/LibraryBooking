@@ -46,7 +46,14 @@ namespace LibraryBooksBooking.Infrastructure.Service
             {
                 throw new InvalidOperationException("Return date must be after the booking date.");
             }
-
+            
+            var bookingExists = await _bookingRepo.GetByIdAsync(booking.Guid);
+            
+            if (bookingExists == null)
+            {
+                throw new InvalidOperationException("Booking does not exist.");
+            }
+            
             // Check book availability
             var availableBooks = await GetAvailableBooksAsync(booking.BookingDate, booking.ReturnDate, booking.Guid);
             var book = availableBooks.FirstOrDefault(b => b.Guid == booking.BookGuid);
@@ -59,9 +66,7 @@ namespace LibraryBooksBooking.Infrastructure.Service
             var updatedBooking = await _bookingRepo.EditAsync(booking);
             return updatedBooking;
         }
-
-
-
+        
         public async Task<Booking> DeleteAsync(Booking entity)
         {
             return await _bookingRepo.DeleteAsync(entity);
@@ -75,9 +80,14 @@ namespace LibraryBooksBooking.Infrastructure.Service
 
         public async Task<IEnumerable<Book>> GetAvailableBooksAsync(DateTime start, DateTime end, string excludeBookingGuid = null)
         {
+            if (start.Date > end.Date)
+            {
+                throw new InvalidOperationException("End date must be after the start date.");
+            }
+            
             var bookings = await _bookingRepo.GetAllAsync();
             var bookedBooks = bookings
-                .Where(b => (b.BookingDate < end && b.ReturnDate > start) && (excludeBookingGuid == null || b.Guid != excludeBookingGuid))
+                .Where(b => b.BookingDate <= end && b.ReturnDate >= start && (excludeBookingGuid == null || b.Guid != excludeBookingGuid))
                 .Select(b => b.BookGuid);
 
             var books = await _bookService.GetAllAsync();
@@ -112,6 +122,11 @@ namespace LibraryBooksBooking.Infrastructure.Service
 
         public async Task<IEnumerable<Booking>> GetBookingsByCustomerGuidAsync(string customerGuid)
         {
+            if (string.IsNullOrEmpty(customerGuid))
+            {
+                throw new InvalidOperationException("Customer guid is required.");
+            }
+            
             var bookings = await _bookingRepo.GetAllAsync();
             return bookings.Where(b => b.CustomerGuid == customerGuid);
         }
