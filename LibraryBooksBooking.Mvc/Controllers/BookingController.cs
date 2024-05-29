@@ -120,13 +120,27 @@ namespace LibraryBooksBooking.Mvc.Controllers
             {
                 return NotFound();
             }
+
             ModelState.Remove(nameof(booking.Customer));
             ModelState.Remove(nameof(booking.Book));
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    await _bookingService.UpdateAsync(booking);
+                    var existingBooking = await _bookingService.GetByIdAsync(id);
+                    if (existingBooking == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Update only the fields that are provided in the booking object
+                    existingBooking.BookingDate = booking.BookingDate != default ? booking.BookingDate : existingBooking.BookingDate;
+                    existingBooking.ReturnDate = booking.ReturnDate != default ? booking.ReturnDate : existingBooking.ReturnDate;
+                    existingBooking.BookGuid = !string.IsNullOrEmpty(booking.BookGuid) ? booking.BookGuid : existingBooking.BookGuid;
+                    existingBooking.CustomerGuid = !string.IsNullOrEmpty(booking.CustomerGuid) ? booking.CustomerGuid : existingBooking.CustomerGuid;
+
+                    await _bookingService.UpdateAsync(existingBooking);
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException ex)
@@ -145,10 +159,12 @@ namespace LibraryBooksBooking.Mvc.Controllers
                     return RedirectToAction("Error", new { exMessage = ex.Message });
                 }
             }
+
             ViewData["CustomerId"] = new SelectList(await _customerService.GetAllAsync(), "Guid", "Name", booking.CustomerGuid);
             ViewData["BookId"] = new SelectList(await _bookService.GetAllAsync(), "Guid", "Title", booking.BookGuid);
             return View(booking);
         }
+
 
 
         // GET: Booking/Delete/5
