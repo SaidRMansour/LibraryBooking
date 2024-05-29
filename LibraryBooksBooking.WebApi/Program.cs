@@ -22,6 +22,8 @@ builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IBookService, BookService>();
 
+builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -33,15 +35,20 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    
+
     // Initialize the database.
-    using var scope = app.Services.CreateScope();
-    var services = scope.ServiceProvider;
-    var dbContext = services.GetService<LibraryBooksDbContext>();
-    var dbInitializer = services.GetService<IDbInitializer<LibraryBooksDbContext>>();
-    dbInitializer.Initialize(dbContext);
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        var dbContext = services.GetService<LibraryBooksDbContext>();
+        var dbInitializer = services.GetService<IDbInitializer<LibraryBooksDbContext>>();
+        dbInitializer.Initialize(dbContext);
+    }
+        
 }
 
-// app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
+
+app.MapControllers();
 
 app.Run();
