@@ -1,8 +1,10 @@
 ﻿using LibraryBooksBooking.Core.IServices;
 using LibraryBooksBooking.Core.Models;
+using LibraryBooksBooking.WebApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace LibraryBooksBooking.WebApi.Controllers
@@ -20,12 +22,20 @@ namespace LibraryBooksBooking.WebApi.Controllers
 
         // GET: api/Customer
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers()
+        public async Task<ActionResult<IEnumerable<CustomerDTO>>> GetCustomers()
         {
             try
             {
                 var customers = await _customerService.GetAllAsync();
-                return Ok(customers);
+                var customerDtos = customers.Select(customer => new CustomerDTO
+                {
+                    Guid = customer.Guid,
+                    Name = customer.Name,
+                    Email = customer.Email,
+                    PhoneNumber = customer.PhoneNumber
+                });
+
+                return Ok(customerDtos);
             }
             catch (Exception ex)
             {
@@ -35,7 +45,7 @@ namespace LibraryBooksBooking.WebApi.Controllers
 
         // GET: api/Customer/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Customer>> GetCustomer(string id)
+        public async Task<ActionResult<CustomerDTO>> GetCustomer(string id)
         {
             if (id == null)
             {
@@ -50,7 +60,15 @@ namespace LibraryBooksBooking.WebApi.Controllers
                     return NotFound();
                 }
 
-                return Ok(customer);
+                var customerDto = new CustomerDTO
+                {
+                    Guid = customer.Guid,
+                    Name = customer.Name,
+                    Email = customer.Email,
+                    PhoneNumber = customer.PhoneNumber
+                };
+
+                return Ok(customerDto);
             }
             catch (Exception ex)
             {
@@ -60,19 +78,35 @@ namespace LibraryBooksBooking.WebApi.Controllers
 
         // POST: api/Customer
         [HttpPost]
-        public async Task<ActionResult<Customer>> CreateCustomer([FromBody] Customer customer)
+        public async Task<ActionResult<CustomerDTO>> CreateCustomer([FromBody] CustomerDTO customerDto)
         {
-            if (string.IsNullOrEmpty(customer.Name) ||
-                string.IsNullOrEmpty(customer.Email) ||
-                string.IsNullOrEmpty(customer.PhoneNumber))
+            if (string.IsNullOrEmpty(customerDto.Name) ||
+                string.IsNullOrEmpty(customerDto.Email) ||
+                string.IsNullOrEmpty(customerDto.PhoneNumber))
             {
                 return BadRequest("All fields are required.");
             }
 
             try
             {
+                var customer = new Customer
+                {
+                    Guid = customerDto.Guid,
+                    Name = customerDto.Name,
+                    Email = customerDto.Email,
+                    PhoneNumber = customerDto.PhoneNumber
+                };
+
                 var createdCustomer = await _customerService.AddAsync(customer);
-                return CreatedAtAction(nameof(GetCustomer), new { id = createdCustomer.Guid }, createdCustomer);
+                var createdCustomerDto = new CustomerDTO
+                {
+                    Guid = createdCustomer.Guid,
+                    Name = createdCustomer.Name,
+                    Email = createdCustomer.Email,
+                    PhoneNumber = createdCustomer.PhoneNumber
+                };
+
+                return CreatedAtAction(nameof(GetCustomer), new { id = createdCustomerDto.Guid }, createdCustomerDto);
             }
             catch (Exception ex)
             {
@@ -82,29 +116,33 @@ namespace LibraryBooksBooking.WebApi.Controllers
 
         // PUT: api/Customer/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCustomer(string id, [FromBody] Customer customer)
+        public async Task<IActionResult> UpdateCustomer(string id, [FromBody] CustomerDTO customerDto)
         {
-            if (id != customer.Guid)
+            if (id != customerDto.Guid)
             {
                 return BadRequest("Customer ID mismatch.");
             }
 
-            ModelState.Remove(nameof(customer.Bookings));
-
-            if (ModelState.IsValid)
+            var existingCustomer = await _customerService.GetByIdAsync(id);
+            if (existingCustomer == null)
             {
-                try
-                {
-                    await _customerService.UpdateAsync(customer);
-                    return NoContent();
-                }
-                catch (Exception ex)
-                {
-                    return StatusCode(500, $"Internal server error: {ex.Message}");
-                }
+                return NotFound("Customer not found.");
             }
 
-            return BadRequest(ModelState);
+            // Update only the fields that are provided in the DTO
+            existingCustomer.Name = !string.IsNullOrEmpty(customerDto.Name) ? customerDto.Name : existingCustomer.Name;
+            existingCustomer.Email = !string.IsNullOrEmpty(customerDto.Email) ? customerDto.Email : existingCustomer.Email;
+            existingCustomer.PhoneNumber = !string.IsNullOrEmpty(customerDto.PhoneNumber) ? customerDto.PhoneNumber : existingCustomer.PhoneNumber;
+
+            try
+            {
+                await _customerService.UpdateAsync(existingCustomer);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         // DELETE: api/Customer/5

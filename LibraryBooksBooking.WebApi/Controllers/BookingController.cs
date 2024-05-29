@@ -1,10 +1,11 @@
 using LibraryBooksBooking.Core.IServices;
 using LibraryBooksBooking.Core.Models;
+using LibraryBooksBooking.WebApi.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace LibraryBooksBooking.WebApi.Controllers
 {
@@ -25,12 +26,22 @@ namespace LibraryBooksBooking.WebApi.Controllers
 
         // GET: api/Booking
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Booking>>> GetBookings()
+        public async Task<ActionResult<IEnumerable<BookingDTO>>> GetBookings()
         {
             try
             {
                 var bookings = await _bookingService.GetAllAsync();
-                return Ok(bookings);
+                var bookingDtos = bookings.Select(booking => new BookingDTO
+                {
+                    Guid = booking.Guid,
+                    BookingDate = booking.BookingDate,
+                    ReturnDate = booking.ReturnDate,
+                    IsAvailable = booking.IsAvailable,
+                    BookGuid = booking.BookGuid,
+                    CustomerGuid = booking.CustomerGuid
+                });
+
+                return Ok(bookingDtos);
             }
             catch (Exception ex)
             {
@@ -40,7 +51,7 @@ namespace LibraryBooksBooking.WebApi.Controllers
 
         // GET: api/Booking/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Booking>> GetBooking(string id)
+        public async Task<ActionResult<BookingDTO>> GetBooking(string id)
         {
             if (id == null)
             {
@@ -55,7 +66,17 @@ namespace LibraryBooksBooking.WebApi.Controllers
                     return NotFound();
                 }
 
-                return Ok(booking);
+                var bookingDto = new BookingDTO
+                {
+                    Guid = booking.Guid,
+                    BookingDate = booking.BookingDate,
+                    ReturnDate = booking.ReturnDate,
+                    IsAvailable = booking.IsAvailable,
+                    BookGuid = booking.BookGuid,
+                    CustomerGuid = booking.CustomerGuid
+                };
+
+                return Ok(bookingDto);
             }
             catch (Exception ex)
             {
@@ -65,25 +86,53 @@ namespace LibraryBooksBooking.WebApi.Controllers
 
         // POST: api/Booking
         [HttpPost]
-        public async Task<ActionResult<Booking>> CreateBooking([FromBody] Booking booking)
+        public async Task<ActionResult<BookingDTO>> CreateBooking([FromBody] BookingDTO bookingDto)
         {
-            if (booking.BookingDate == default ||
-                booking.ReturnDate == default ||
-                string.IsNullOrEmpty(booking.CustomerGuid) ||
-                string.IsNullOrEmpty(booking.BookGuid))
+            if (bookingDto.BookingDate == default ||
+                bookingDto.ReturnDate == default ||
+                string.IsNullOrEmpty(bookingDto.CustomerGuid) ||
+                string.IsNullOrEmpty(bookingDto.BookGuid))
             {
                 return BadRequest("All fields are required.");
             }
 
             try
             {
-                var success = await _bookingService.CreateBookingAsync(booking);
-                if (success.IsAvailable)
+                var book = await _bookService.GetByIdAsync(bookingDto.BookGuid);
+                if (book == null)
                 {
-                    return CreatedAtAction(nameof(GetBooking), new { id = success.Guid }, success);
+                    return NotFound("Book not found.");
                 }
 
-                return BadRequest("The booking could not be created. The selected book might not be available.");
+                var customer = await _customerService.GetByIdAsync(bookingDto.CustomerGuid);
+                if (customer == null)
+                {
+                    return NotFound("Customer not found.");
+                }
+
+                var booking = new Booking
+                {
+                    Guid = bookingDto.Guid,
+                    BookingDate = bookingDto.BookingDate,
+                    ReturnDate = bookingDto.ReturnDate,
+                    BookGuid = bookingDto.BookGuid,
+                    CustomerGuid = bookingDto.CustomerGuid,
+                    Book = book,
+                    Customer = customer
+                };
+
+                var createdBooking = await _bookingService.CreateBookingAsync(booking);
+                var createdBookingDto = new BookingDTO
+                {
+                    Guid = createdBooking.Guid,
+                    BookingDate = createdBooking.BookingDate,
+                    ReturnDate = createdBooking.ReturnDate,
+                    IsAvailable = createdBooking.IsAvailable,
+                    BookGuid = createdBooking.BookGuid,
+                    CustomerGuid = createdBooking.CustomerGuid
+                };
+
+                return CreatedAtAction(nameof(GetBooking), new { id = createdBookingDto.Guid }, createdBookingDto);
             }
             catch (Exception ex)
             {
@@ -93,28 +142,43 @@ namespace LibraryBooksBooking.WebApi.Controllers
 
         // PUT: api/Booking/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateBooking(string id, [FromBody] Booking booking)
+        public async Task<IActionResult> UpdateBooking(string id, [FromBody] BookingDTO bookingDto)
         {
-            if (id != booking.Guid)
+            if (id != bookingDto.Guid)
             {
                 return BadRequest("Booking ID mismatch.");
             }
 
             try
             {
-                await _bookingService.UpdateAsync(booking);
+                var existingBooking = await _bookingService.GetByIdAsync(id);
+                if (existingBooking == null)
+                {
+                    return NotFound("Booking not found.");
+                }
+
+                var book = await _bookService.GetByIdAsync(bookingDto.BookGuid);
+                if (book == null)
+                {
+                    return NotFound("Book not found.");
+                }
+
+                var customer = await _customerService.GetByIdAsync(bookingDto.CustomerGuid);
+                if (customer == null)
+                {
+                    return NotFound("Customer not found.");
+                }
+
+                // Update only the fields that are provided in the DTO
+                existingBooking.BookingDate = bookingDto.BookingDate != default ? bookingDto.BookingDate : existingBooking.BookingDate;
+                existingBooking.ReturnDate = bookingDto.ReturnDate != default ? bookingDto.ReturnDate : existingBooking.ReturnDate;
+                existingBooking.BookGuid = !string.IsNullOrEmpty(bookingDto.BookGuid) ? bookingDto.BookGuid : existingBooking.BookGuid;
+                existingBooking.CustomerGuid = !string.IsNullOrEmpty(bookingDto.CustomerGuid) ? bookingDto.CustomerGuid : existingBooking.CustomerGuid;
+                existingBooking.Book = book;
+                existingBooking.Customer = customer;
+
+                await _bookingService.UpdateAsync(existingBooking);
                 return NoContent();
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                if (await _bookingService.GetByIdAsync(booking.Guid) == null)
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    return StatusCode(500, $"Internal server error: {ex.Message}");
-                }
             }
             catch (Exception ex)
             {

@@ -18,10 +18,14 @@
 
     <ItemGroup>
       <Folder Include="Controllers\" />
+      <Folder Include="Models\" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\LibraryBooksBooking.Infrastructure\LibraryBooksBooking.Infrastructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="Models\" />
+    </ItemGroup>
 </Project>

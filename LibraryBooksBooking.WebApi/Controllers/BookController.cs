@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using LibraryBooksBooking.Core.IServices;
+﻿using LibraryBooksBooking.Core.IServices;
 using LibraryBooksBooking.Core.Models;
+using LibraryBooksBooking.WebApi.Models;
 using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace LibraryBooksBooking.WebApi.Controllers
 {
-
     [Route("api/[controller]")]
     [ApiController]
     public class BookController : ControllerBase
@@ -24,15 +21,25 @@ namespace LibraryBooksBooking.WebApi.Controllers
 
         // GET: api/Book
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
+        public async Task<ActionResult<IEnumerable<BookDTO>>> GetBooks()
         {
             var books = await _bookService.GetAllAsync();
-            return Ok(books);
+            var bookDtos = books.Select(book => new BookDTO
+            {
+                Guid = book.Guid,
+                Title = book.Title,
+                Author = book.Author,
+                ISBN = book.ISBN,
+                Genre = book.Genre,
+                PublishedDate = book.PublishedDate
+            });
+
+            return Ok(bookDtos);
         }
 
         // GET: api/Book/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Book>> GetBook(string id)
+        public async Task<ActionResult<BookDTO>> GetBook(string id)
         {
             if (id == null)
             {
@@ -45,26 +52,57 @@ namespace LibraryBooksBooking.WebApi.Controllers
                 return NotFound();
             }
 
-            return Ok(book);
+            var bookDto = new BookDTO
+            {
+                Guid = book.Guid,
+                Title = book.Title,
+                Author = book.Author,
+                ISBN = book.ISBN,
+                Genre = book.Genre,
+                PublishedDate = book.PublishedDate
+            };
+
+            return Ok(bookDto);
         }
 
         // POST: api/Book
         [HttpPost]
-        public async Task<ActionResult<Book>> CreateBook([FromBody] Book book)
+        public async Task<ActionResult<BookDTO>> CreateBook([FromBody] BookDTO bookDto)
         {
-            if (string.IsNullOrEmpty(book.Title) ||
-                string.IsNullOrEmpty(book.Author) ||
-                string.IsNullOrEmpty(book.ISBN) ||
-                string.IsNullOrEmpty(book.Genre) ||
-                book.PublishedDate == default)
+            if (string.IsNullOrEmpty(bookDto.Title) ||
+                string.IsNullOrEmpty(bookDto.Author) ||
+                string.IsNullOrEmpty(bookDto.ISBN) ||
+                string.IsNullOrEmpty(bookDto.Genre) ||
+                bookDto.PublishedDate == default)
             {
                 return BadRequest("All fields are required.");
             }
 
             try
             {
+                var book = new Book
+                {
+                    Guid = bookDto.Guid,
+                    Title = bookDto.Title,
+                    Author = bookDto.Author,
+                    ISBN = bookDto.ISBN,
+                    Genre = bookDto.Genre,
+                    PublishedDate = (DateTime)bookDto.PublishedDate,
+                    
+                };
+
                 var createdBook = await _bookService.AddAsync(book);
-                return CreatedAtAction(nameof(GetBook), new { id = createdBook.Guid }, createdBook);
+                var createdBookDto = new BookDTO
+                {
+                    Guid = createdBook.Guid,
+                    Title = createdBook.Title,
+                    Author = createdBook.Author,
+                    ISBN = createdBook.ISBN,
+                    Genre = createdBook.Genre,
+                    PublishedDate = createdBook.PublishedDate
+                };
+
+                return CreatedAtAction(nameof(GetBook), new { id = createdBookDto.Guid }, createdBookDto);
             }
             catch (Exception ex)
             {
@@ -74,31 +112,38 @@ namespace LibraryBooksBooking.WebApi.Controllers
 
         // PUT: api/Book/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateBook(string id, [FromBody] Book book)
+        public async Task<IActionResult> UpdateBook(string id, [FromBody] BookDTO bookDto)
         {
-            if (id != book.Guid)
+            if (id != bookDto.Guid)
             {
                 return BadRequest("Book ID mismatch.");
             }
 
-            // Fjern valideringsfejl for virtuelle felter
-            ModelState.Remove(nameof(book.Bookings));
-
-            if (ModelState.IsValid)
+            var existingBook = await _bookService.GetByIdAsync(id);
+            if (existingBook == null)
             {
-                try
-                {
-                    await _bookService.UpdateAsync(book);
-                    return NoContent();
-                }
-                catch (Exception ex)
-                {
-                    return StatusCode(500, $"Internal server error: {ex.Message}");
-                }
+                return NotFound("Book not found.");
             }
 
-            return BadRequest(ModelState);
+            // Update only the fields that are provided in the DTO
+            existingBook.Title = !string.IsNullOrEmpty(bookDto.Title) ? bookDto.Title : existingBook.Title;
+            existingBook.Author = !string.IsNullOrEmpty(bookDto.Author) ? bookDto.Author : existingBook.Author;
+            existingBook.ISBN = !string.IsNullOrEmpty(bookDto.ISBN) ? bookDto.ISBN : existingBook.ISBN;
+            existingBook.Genre = !string.IsNullOrEmpty(bookDto.Genre) ? bookDto.Genre : existingBook.Genre;
+            existingBook.PublishedDate = bookDto.PublishedDate.HasValue ? bookDto.PublishedDate.Value : existingBook.PublishedDate;
+
+            try
+            {
+                await _bookService.UpdateAsync(existingBook);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
+
+
 
         // DELETE: api/Book/5
         [HttpDelete("{id}")]
@@ -127,5 +172,3 @@ namespace LibraryBooksBooking.WebApi.Controllers
         }
     }
 }
-
-
