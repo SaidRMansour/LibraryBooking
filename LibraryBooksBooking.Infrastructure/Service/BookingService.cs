@@ -47,8 +47,19 @@ namespace LibraryBooksBooking.Infrastructure.Service
                 throw new InvalidOperationException("Return date must be after the booking date.");
             }
 
-            return await _bookingRepo.EditAsync(booking);
+            // Check book availability
+            var availableBooks = await GetAvailableBooksAsync(booking.BookingDate, booking.ReturnDate, booking.Guid);
+            var book = availableBooks.FirstOrDefault(b => b.Guid == booking.BookGuid);
+            if (book == null)
+            {
+                throw new InvalidOperationException("Book is not available");
+            }
+
+            booking.IsAvailable = true;
+            var updatedBooking = await _bookingRepo.EditAsync(booking);
+            return updatedBooking;
         }
+
 
 
         public async Task<Booking> DeleteAsync(Booking entity)
@@ -62,10 +73,13 @@ namespace LibraryBooksBooking.Infrastructure.Service
             return bookings.Where(b => b.BookGuid == bookGuid);
         }
 
-        public async Task<IEnumerable<Book>> GetAvailableBooksAsync(DateTime start, DateTime end)
+        public async Task<IEnumerable<Book>> GetAvailableBooksAsync(DateTime start, DateTime end, string excludeBookingGuid = null)
         {
             var bookings = await _bookingRepo.GetAllAsync();
-            var bookedBooks = bookings.Where(b => b.BookingDate <= end && b.ReturnDate >= start).Select(b => b.BookGuid);
+            var bookedBooks = bookings
+                .Where(b => (b.BookingDate < end && b.ReturnDate > start) && (excludeBookingGuid == null || b.Guid != excludeBookingGuid))
+                .Select(b => b.BookGuid);
+
             var books = await _bookService.GetAllAsync();
             return books.Where(b => !bookedBooks.Contains(b.Guid));
         }
