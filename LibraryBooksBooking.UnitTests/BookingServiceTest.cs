@@ -43,6 +43,7 @@ public class BookingServiceTest
         _bookingService = new BookingService(_bookingRepository.Object, _bookService.Object);
     }
     
+    // CreateBookingAsync: Test case 1
     [Theory]
     [InlineData(-2, -1)]
     [InlineData(-2, 2)]
@@ -61,13 +62,37 @@ public class BookingServiceTest
         await Assert.ThrowsAsync<InvalidOperationException>(async () => 
             await _bookingService.CreateBookingAsync(booking));
     }
-     
+    
+    // CreateBookingAsync: Test case 2, 3, 4, 7
+    [Theory]
+    [InlineData(0, 2, 0)]
+    [InlineData(0, 4, 0)]
+    [InlineData(2, 4, 0)]
+    [InlineData(5, 9, 1)]
+    public async void CreateBookingAsync_BookNotAvailable_ThrowsInvalidOperationException(int start, int end, int book)
+    {
+       // Arrange
+       var booking = new Booking
+       {
+           Guid = Guid.NewGuid().ToString(),
+           BookingDate = DateTime.Today.AddDays(start),
+           ReturnDate = DateTime.Today.AddDays(end),
+           BookGuid = GetBooks()[book].Guid,
+           CustomerGuid = GetCustomers()[0].Guid
+       };
+
+       // Act & Assert
+       await Assert.ThrowsAsync<InvalidOperationException>(async () => 
+           await _bookingService.CreateBookingAsync(booking));
+    }
+    
+    // CreateBookingAsync: Test case 5
     [Theory]
     [InlineData(2, 1)]
     [InlineData(10, 0)]
     public async void CreateBookingAsync_ReturnDateBeforeBookingDate_ThrowsInvalidOperationException(int start, int end)
     {
-            // Arrange
+        // Arrange
         var booking = new Booking
         {
             Guid = Guid.NewGuid().ToString(),
@@ -80,11 +105,12 @@ public class BookingServiceTest
             
         await Assert.ThrowsAsync<InvalidOperationException>(async () => 
             await _bookingService.CreateBookingAsync(booking));
-     }
+    }
      
+    // CreateBookingAsync: Test case 6
     [Theory]
-    [InlineData(4, 8,  0)]
-    [InlineData(6, 10, 1)]
+    [InlineData(5, 9,  0)]
+    [InlineData(8, 10, 0)]
     public async void CreateBookingAsync_ValidBooking_ReturnsBooking(int start, int end, int book)
     {
         // Arrange
@@ -102,32 +128,30 @@ public class BookingServiceTest
 
         // Assert
         Assert.NotNull(bookingCreated);
-     }
-     
-    [Theory]
-    [InlineData(1, 2)]
-    [InlineData(3, 4)]
-    public async void CreateBookingAsync_BookNotAvailable_ThrowsInvalidOperationException(int start, int end)
-    {
-       // Arrange
-       var booking = new Booking
-       {
-           Guid = Guid.NewGuid().ToString(),
-           BookingDate = DateTime.Today.AddDays(start),
-           ReturnDate = DateTime.Today.AddDays(end),
-           BookGuid = GetBooks()[0].Guid,
-           CustomerGuid = GetCustomers()[0].Guid
-       };
-
-       // Act & Assert
-       await Assert.ThrowsAsync<InvalidOperationException>(async () => 
-           await _bookingService.CreateBookingAsync(booking));
     }
-
+    
+    // GetAvailableBooksAsync: Test case 1
     [Theory]
-    [InlineData(1, 2, 0)]
-    [InlineData(4, 5, 1)]
-    [InlineData(2, 5, 0)]
+    [InlineData(0, -2)]
+    [InlineData(5, -10)]
+    public async void GetAvailableBooksAsync_EndDateBeforeStartDate_ThrowsInvalidOperationException(int start, int end)
+    {
+        // Arrange
+        var startDate = DateTime.Today.AddDays(start);
+        var endDate = DateTime.Today.AddDays(end);
+        
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(async () => 
+            await _bookingService.GetAvailableBooksAsync(startDate, endDate, null));
+    }
+    
+    // GetAvailableBooksAsync: Test case 2, 3, 4, 5, 6
+    [Theory]
+    [InlineData(0, 2, 0)]
+    [InlineData(0, 4, 0)]
+    [InlineData(2, 4, 0)]
+    [InlineData(5,6,2)]
+    [InlineData(7,8, 1)]
     public async void GetAvailableBooksAsync_BookingsExist_ReturnsAvailableBooks(int start, int end, int amount)
     { 
         // Arrange
@@ -140,20 +164,6 @@ public class BookingServiceTest
        
         // Assert
         Assert.Equal(amount, availableBooks.ToList().Count);
-    }
-    
-    [Theory]
-    [InlineData(3, 2)]
-    [InlineData(0, -3)]
-    public async void GetAvailableBooksAsync_EndDateBeforeStartDate_ThrowsInvalidOperationException(int start, int end)
-    {
-        // Arrange
-        var startDate = DateTime.Today.AddDays(start);
-        var endDate = DateTime.Today.AddDays(end);
-        
-        // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(async () => 
-            await _bookingService.GetAvailableBooksAsync(startDate, endDate, null));
     }
     
     [Theory]
@@ -208,14 +218,15 @@ public class BookingServiceTest
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await _bookingService.GetBookingsByCustomerGuidAsync(customerGuid));
     }
     
+    // UpdateBookingAsync: Test case 6 move to available period
     [Fact]
     public async void UpdateBookingAsync_BookingExists_ReturnsUpdatedBooking()
     {
         // Arrange
-        var booking = GetBookings().First();
+        var booking = GetBookings().Last();
         
         booking.BookingDate = DateTime.Today.AddDays(5);
-        booking.ReturnDate = DateTime.Today.AddDays(10);
+        booking.ReturnDate = DateTime.Today.AddDays(8);
         
         // Act
         var bookingUpdated = await _bookingService.UpdateAsync(booking);
@@ -242,6 +253,7 @@ public class BookingServiceTest
         Assert.ThrowsAsync<InvalidOperationException>(async () => await _bookingService.UpdateAsync(booking));
     }
     
+    // Test case 5
     [Theory]
     [InlineData(2, 1)]
     [InlineData(3, 2)]
@@ -256,13 +268,14 @@ public class BookingServiceTest
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await _bookingService.UpdateAsync(booking));
     }
     
+    // Test case 1
     [Theory]
-    [InlineData(-1, -1)]
-    [InlineData(-20, -16)]
+    [InlineData(-2, -1)]
+    [InlineData(-1, 0)]
     public async void UpdateBookingAsync_BookingDateInThePast_ThrowsInvalidOperationException(int start, int end)
     {
         // Arrange
-        var booking = GetBookings().First();
+        var booking = GetBookings().Last();
         booking.BookingDate = DateTime.Today.AddDays(start);
         booking.BookingDate = DateTime.Today.AddDays(end);
         
@@ -270,15 +283,38 @@ public class BookingServiceTest
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await _bookingService.UpdateAsync(booking));
     }
     
-    [Fact]
-    public async void UpdateBookingAsync_BookNotAvailable_ThrowsInvalidOperationException()
+    // UpdateBookingAsync: Test case 2, 3, 4
+    [Theory]
+    [InlineData(0, 2)]
+    [InlineData(1, 3)]
+    [InlineData(3,5)]
+    [InlineData(0,4)]
+    public async void UpdateBookingAsync_BookingDateNotAvailable_ThrowsInvalidOperationException(int start, int end)
     {
         // Arrange
-        var booking = GetBookings().First();
-        booking.BookGuid = GetBooks().Last().Guid;
+        var booking = GetBookings().Last();
+        booking.BookingDate = DateTime.Today.AddDays(1);
         
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await _bookingService.UpdateAsync(booking));
+    }
+    
+    // UpdateBookingAsync: Test case 6, 7
+    [Theory]
+    [InlineData(5, 7)]
+    [InlineData(6, 8)]
+    public async void UpdateBookingAsync_BookingDateAvailable_ReturnsUpdatedBooking(int start, int end)
+    {
+        // Arrange
+        var booking = GetBookings().Last();
+        booking.BookingDate = DateTime.Today.AddDays(5);
+        booking.ReturnDate = DateTime.Today.AddDays(8);
+        
+        // Act
+        var bookingUpdated = await _bookingService.UpdateAsync(booking);
+        
+        // Assert
+        Assert.Equal(booking.BookingDate, bookingUpdated.BookingDate);
     }
     
     private static List<Customer> GetCustomers()
@@ -332,8 +368,8 @@ public class BookingServiceTest
              new Booking
              {
                  Guid = "b84ef9ce-376b-45aa-aa28-7c97d60d8f52",
-                 BookingDate = DateTime.Today.AddDays(2),
-                 ReturnDate = DateTime.Today.AddDays(3),
+                 BookingDate = DateTime.Today.AddDays(1),
+                 ReturnDate = DateTime.Today.AddDays(4),
                  BookGuid = GetBooks().First().Guid,
                  CustomerGuid = GetCustomers().First().Guid
              },
@@ -341,15 +377,15 @@ public class BookingServiceTest
              {
                  Guid = "580c0968-6d7f-44a7-bc25-908fa4a5c1aa",
                  BookingDate = DateTime.Today.AddDays(-2),
-                 ReturnDate = DateTime.Today.AddDays(3),
+                 ReturnDate = DateTime.Today.AddDays(4),
                  BookGuid = GetBooks().Last().Guid,
                  CustomerGuid = GetCustomers().Last().Guid
              },
              new Booking
              {
                  Guid = "240df115-7943-4528-9eb0-d013cba41332",
-                 BookingDate = DateTime.Today.AddDays(4),
-                 ReturnDate = DateTime.Today.AddDays(5),
+                 BookingDate = DateTime.Today.AddDays(7),
+                 ReturnDate = DateTime.Today.AddDays(9),
                  BookGuid = GetBooks().Last().Guid,
                  CustomerGuid = GetCustomers().First().Guid
              }
