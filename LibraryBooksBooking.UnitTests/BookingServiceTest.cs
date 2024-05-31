@@ -298,6 +298,7 @@ public class BookingServiceTest
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await _bookingService.UpdateAsync(booking));
     }
+
     
     // UpdateBookingAsync: Test case 6, 7
     [Theory]
@@ -317,33 +318,36 @@ public class BookingServiceTest
         Assert.Equal(booking.BookingDate, bookingUpdated.BookingDate);
     }
     
+
+
+
     private static List<Customer> GetCustomers()
     {
-        return
-        [
+        return new List<Customer>
+        {
             new Customer
-            { 
+            {
                 Guid = "a00dfad3-8aa6-4204-897f-2c03a0d89aab",
                 Name = "John Doe",
                 Bookings = new List<Booking>(),
                 Email = "john.doe@mail.com",
                 PhoneNumber = "1234567890"
-            }, 
-            new Customer 
-            { 
-                Guid = "cdf7d4d8-f1d4-4869-b17c-7db3b9daa90e", 
-                Name = "Jane Doe", 
-                Bookings = new List<Booking>(), 
-                Email = "jane.doe@mail.com", 
-                PhoneNumber = "1234567891" 
+            },
+            new Customer
+            {
+                Guid = "cdf7d4d8-f1d4-4869-b17c-7db3b9daa90e",
+                Name = "Jane Doe",
+                Bookings = new List<Booking>(),
+                Email = "jane.doe@mail.com",
+                PhoneNumber = "1234567891"
             }
-        ];
+        };
     }
-     
+
     private static List<Book> GetBooks()
     {
-        return
-        [
+        return new List<Book>
+            {
             new Book
             {
                 Guid = "1092fcf8-dddf-4bb7-b7e0-a526f9d884c1",
@@ -358,37 +362,40 @@ public class BookingServiceTest
                 Author = "Author 2",
                 ISBN = "1234567891"
             }
-        ]; 
+        };
     }
-     
-     private static List<Booking> GetBookings()
-     {
-         return
-         [
-             new Booking
-             {
-                 Guid = "b84ef9ce-376b-45aa-aa28-7c97d60d8f52",
-                 BookingDate = DateTime.Today.AddDays(1),
-                 ReturnDate = DateTime.Today.AddDays(4),
-                 BookGuid = GetBooks().First().Guid,
-                 CustomerGuid = GetCustomers().First().Guid
-             },
-             new Booking
-             {
-                 Guid = "580c0968-6d7f-44a7-bc25-908fa4a5c1aa",
-                 BookingDate = DateTime.Today.AddDays(-2),
-                 ReturnDate = DateTime.Today.AddDays(4),
-                 BookGuid = GetBooks().Last().Guid,
-                 CustomerGuid = GetCustomers().Last().Guid
-             },
-             new Booking
-             {
-                 Guid = "240df115-7943-4528-9eb0-d013cba41332",
-                 BookingDate = DateTime.Today.AddDays(7),
-                 ReturnDate = DateTime.Today.AddDays(9),
-                 BookGuid = GetBooks().Last().Guid,
-                 CustomerGuid = GetCustomers().First().Guid
-             }
-         ]; 
-     }
+
+    private static List<Booking> GetBookings()
+    {
+        return new List<Booking>
+            {
+            new Booking
+            {
+                Guid = "b84ef9ce-376b-45aa-aa28-7c97d60d8f52",
+                BookingDate = DateTime.Today.AddDays(1),
+                ReturnDate = DateTime.Today.AddDays(4),
+                BookGuid = GetBooks().First().Guid,
+                CustomerGuid = GetCustomers().First().Guid
+            },
+            new Booking
+            {
+                Guid = "580c0968-6d7f-44a7-bc25-908fa4a5c1aa",
+                BookingDate = DateTime.Today.AddDays(-2),
+                ReturnDate = DateTime.Today.AddDays(4),
+                BookGuid = GetBooks().Last().Guid,
+                CustomerGuid = GetCustomers().Last().Guid
+            },
+            new Booking
+            {
+                Guid = "240df115-7943-4528-9eb0-d013cba41332",
+                BookingDate = DateTime.Today.AddDays(7),
+                ReturnDate = DateTime.Today.AddDays(9),
+                BookGuid = GetBooks().Last().Guid,
+                CustomerGuid = GetCustomers().First().Guid
+            }
+        };
+    }
+
+
+
 }
