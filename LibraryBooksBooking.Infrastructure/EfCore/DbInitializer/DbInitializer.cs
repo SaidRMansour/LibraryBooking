@@ -1,10 +1,21 @@
-﻿namespace LibraryBooksBooking.Infrastructure.EfCore.DbInitializer;
+﻿using System;
 
-public class DbInitializer : IDbInitializer<LibraryBooksDbContext>
+namespace LibraryBooksBooking.Infrastructure.EfCore.DbInitializer
 {
-    public void Initialize(LibraryBooksDbContext context)
+    public class DbInitializer : IDbInitializer<LibraryBooksDbContext>
     {
-        //context.Database.EnsureDeleted();
-        context.Database.EnsureCreated();
+        public void Initialize(LibraryBooksDbContext context)
+        {
+            // Kontroller miljøvariabel
+            var initializeDb = Environment.GetEnvironmentVariable("INITIALIZE_DB");
+
+            if (initializeDb == "Delete")
+            {
+                // *Databasen slettes kun i WebAPi projekt for Postman API test
+                context.Database.EnsureDeleted();
+            }
+
+            context.Database.EnsureCreated();
+        }
     }
 }
