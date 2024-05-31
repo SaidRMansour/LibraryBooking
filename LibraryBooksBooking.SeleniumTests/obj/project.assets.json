@@ -313,6 +313,22 @@
           "lib/netstandard2.0/NuGet.Frameworks.dll": {}
         }
       },
+      "Selenium.Support/4.21.0": {
+        "type": "package",
+        "dependencies": {
+          "Selenium.WebDriver": "4.21.0"
+        },
+        "compile": {
+          "lib/netstandard2.0/WebDriver.Support.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/WebDriver.Support.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Selenium.WebDriver/4.21.0": {
         "type": "package",
         "dependencies": {
@@ -804,6 +820,20 @@
         "nuget.frameworks.nuspec"
       ]
     },
+    "Selenium.Support/4.21.0": {
+      "sha512": "MiDIsB/5Ki1AWua/b9v/eGARtI6bxseAt4EOl2fgl7WsoXlV7Zzq5/gGJ7Zs9PLvJUQMbS6WSNWuMdeSr1SXdA==",
+      "type": "package",
+      "path": "selenium.support/4.21.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "icon.png",
+        "lib/netstandard2.0/WebDriver.Support.dll",
+        "lib/netstandard2.0/WebDriver.Support.xml",
+        "selenium.support.4.21.0.nupkg.sha512",
+        "selenium.support.nuspec"
+      ]
+    },
     "Selenium.WebDriver/4.21.0": {
       "sha512": "3xIx4CJunIoLEOROfDKILIzf76WfphTpQJYE98stG1GBVBKhFO5E6wXNfCqdiWt34iNlckcDr3z+qCD+RPfuUQ==",
       "type": "package",
@@ -1025,6 +1055,7 @@
   "projectFileDependencyGroups": {
     "net8.0": [
       "Microsoft.NET.Test.Sdk >= 17.8.0",
+      "Selenium.Support >= 4.21.0",
       "Selenium.WebDriver >= 4.21.0",
       "Selenium.WebDriver.ChromeDriver >= 125.0.6422.7800",
       "coverlet.collector >= 6.0.0",
@@ -1073,6 +1104,10 @@
           "Microsoft.NET.Test.Sdk": {
             "target": "Package",
             "version": "[17.8.0, )"
+          },
+          "Selenium.Support": {
+            "target": "Package",
+            "version": "[4.21.0, )"
           },
           "Selenium.WebDriver": {
             "target": "Package",

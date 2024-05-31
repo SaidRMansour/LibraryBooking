@@ -43,6 +43,10 @@
               "target": "Package",
               "version": "[17.8.0, )"
             },
+            "Selenium.Support": {
+              "target": "Package",
+              "version": "[4.21.0, )"
+            },
             "Selenium.WebDriver": {
               "target": "Package",
               "version": "[4.21.0, )"

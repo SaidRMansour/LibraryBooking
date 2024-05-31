@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "ztvVhpoiF8hvdW7CKoK61byc4hDKcKqOlDQeV46DlpcEYkSytVAL2kwNf78lRJImCCOoNY6jLLacZzp9X9e77g==",
+  "dgSpecHash": "cm2l53k6zL5mfkTkejzjeBscYGF04bXJeF5BGOWbEXWP/1ewYiwbh6gLc049jZ6/VOtqMztf0xs7fLrYolTnLQ==",
   "success": true,
   "projectFilePath": "/Users/saidr/Projects/LibraryBooksBooking/LibraryBooksBooking.SeleniumTests/LibraryBooksBooking.SeleniumTests.csproj",
   "expectedPackageFiles": [
@@ -11,6 +11,7 @@
     "/Users/saidr/.nuget/packages/microsoft.testplatform.testhost/17.8.0/microsoft.testplatform.testhost.17.8.0.nupkg.sha512",
     "/Users/saidr/.nuget/packages/newtonsoft.json/13.0.1/newtonsoft.json.13.0.1.nupkg.sha512",
     "/Users/saidr/.nuget/packages/nuget.frameworks/6.5.0/nuget.frameworks.6.5.0.nupkg.sha512",
+    "/Users/saidr/.nuget/packages/selenium.support/4.21.0/selenium.support.4.21.0.nupkg.sha512",
     "/Users/saidr/.nuget/packages/selenium.webdriver/4.21.0/selenium.webdriver.4.21.0.nupkg.sha512",
     "/Users/saidr/.nuget/packages/selenium.webdriver.chromedriver/125.0.6422.7800/selenium.webdriver.chromedriver.125.0.6422.7800.nupkg.sha512",
     "/Users/saidr/.nuget/packages/system.reflection.metadata/1.6.0/system.reflection.metadata.1.6.0.nupkg.sha512",

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LibraryBooksBooking.SeleniumTests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1059f8ea83011a41617a3e91034b33aaca7e68fb")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a3dafe8233f53891f464cd9c479d75900b25991f")]
 [assembly: System.Reflection.AssemblyProductAttribute("LibraryBooksBooking.SeleniumTests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LibraryBooksBooking.SeleniumTests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
