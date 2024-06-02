@@ -1,0 +1,1054 @@
+{
+	"info": {
+		"_postman_id": "23f30866-4022-4054-8467-2300d3bd3ad6",
+		"name": "LibraryBooks API test",
+		"description": "This collection contains a series of API functional tests designed to verify the functionality of the `BookingController` extensively, parts of the `BookController`, and a minimal set of tests for the `CustomerController`.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24751614"
+	},
+	"item": [
+		{
+			"name": "Create customer",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Response is json\", function () {",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"// Test for presence of required fields",
+							"pm.test(\"Response has required fields\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('guid');",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"pm.globals.set(\"customerGuid\", jsonData.guid);",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"guid\": \"\",\n  \"name\": \"Said Mansour\",\n  \"email\": \"sm@cleanren.dk\",\n  \"phoneNumber\": \"53399887\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5096/api/customer",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5096",
+					"path": [
+						"api",
+						"customer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Customer",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Test for status code",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// Test for response format",
+							"pm.test(\"Response is JSON\", function () {",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"// Test for response body type",
+							"pm.test(\"Response is an array\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an('array');",
+							"});",
+							"",
+							"// Test for non-empty array",
+							"pm.test(\"Response array is not empty\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.length).to.be.above(0);",
+							"});",
+							"",
+							"// Test for presence of required fields",
+							"pm.test(\"Each customer has required fields\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    jsonData.forEach(function (customer) {",
+							"        pm.expect(customer).to.have.property('guid');",
+							"        pm.expect(customer).to.have.property('name');",
+							"        pm.expect(customer).to.have.property('email');",
+							"        pm.expect(customer).to.have.property('phoneNumber');",
+							"    });",
+							"});",
+							"",
+							"// Test for correct data types",
+							"pm.test(\"Each customer has correct data types\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    jsonData.forEach(function (customer) {",
+							"        pm.expect(customer.guid).to.be.a('string');",
+							"        pm.expect(customer.name).to.be.a('string');",
+							"        pm.expect(customer.email).to.be.a('string');",
+							"        pm.expect(customer.phoneNumber).to.be.a('string');",
+							"    });",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5096/api/customer",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5096",
+					"path": [
+						"api",
+						"customer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create book - publishedDate in future",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var moment = require('moment');",
+							"",
+							"var dateInFuture = moment().add('5', 'days').format()",
+							"",
+							"// Function to generate a random 10-digit number as a string",
+							"function generateRandomISBN() {",
+							"    let isbn = '';",
+							"    for (let i = 0; i < 10; i++) {",
+							"        isbn += Math.floor(Math.random() * 10);",
+							"    }",
+							"    return isbn;",
+							"}",
+							"",
+							"// Generate the random ISBN",
+							"const randomISBN = generateRandomISBN();",
+							"",
+							"// Set environment variables",
+							"pm.environment.set('guid', '');",
+							"pm.environment.set('title', 'Saids book');",
+							"pm.environment.set('author', 'Said Mansour');",
+							"pm.environment.set('isbn', randomISBN); //generate automatic",
+							"pm.environment.set('genre', 'Drama');",
+							"pm.environment.set('publishedDate', dateInFuture);",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 500\", function () {",
+							"  pm.response.to.have.status(500);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"guid\": \"{{guid}}\",\n  \"title\": \"{{title}}\",\n  \"author\": \"{{author}}\",\n  \"isbn\": \"{{isbn}}\",\n  \"genre\": \"{{genre}}\",\n  \"publishedDate\": \"{{publishedDate}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5096/api/book/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5096",
+					"path": [
+						"api",
+						"book",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create book - completed",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var moment = require('moment');",
+							"",
+							"var dateInPast = moment().subtract('5', 'days').format()",
+							"",
+							"// Function to generate a random 10-digit number as a string",
+							"function generateRandomISBN() {",
+							"    let isbn = '';",
+							"    for (let i = 0; i < 10; i++) {",
+							"        isbn += Math.floor(Math.random() * 10);",
+							"    }",
+							"    return isbn;",
+							"}",
+							"",
+							"// Generate the random ISBN",
+							"const randomISBN = generateRandomISBN();",
+							"",
+							"// Set environment variables",
+							"pm.environment.set('guid', ''); // generates in controller",
+							"pm.environment.set('title', 'Scafold in past');",
+							"pm.environment.set('author', 'Said Mansour');",
+							"pm.environment.set('isbn', randomISBN);",
+							"pm.environment.set('genre', 'Action');",
+							"pm.environment.set('publishedDate', dateInPast);",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Response is json\", function () {",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"// Test for presence of required fields",
+							"pm.test(\"Response has required fields\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('guid');",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"pm.globals.set(\"bookGuid\", jsonData.guid);",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"guid\": \"{{guid}}\",\n  \"title\": \"{{title}}\",\n  \"author\": \"{{author}}\",\n  \"isbn\": \"{{isbn}}\",\n  \"genre\": \"{{genre}}\",\n  \"publishedDate\": \"{{publishedDate}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5096/api/book",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5096",
+					"path": [
+						"api",
+						"book"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Book",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Test for status code",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// Test for response format",
+							"pm.test(\"Response is JSON\", function () {",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"// Test for presence of 'guid' property in each object",
+							"pm.test(\"Each object in the response has 'guid' property\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    jsonData.forEach(function(item) {",
+							"        pm.expect(item).to.have.property('guid');",
+							"    });",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5096/api/book/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5096",
+					"path": [
+						"api",
+						"book",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Book/id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Test for status code",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// Test for response format",
+							"pm.test(\"Response is JSON\", function () {",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"// Test for presence of 'guid' property",
+							"pm.test(\"Response has 'guid' property\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('guid');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5096/api/book/{{bookGuid}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5096",
+					"path": [
+						"api",
+						"book",
+						"{{bookGuid}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create booking - past start date",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var moment = require('moment');",
+							"",
+							"var specificCurrentDate = moment().format();",
+							"var specificPastDate = moment().subtract(5, 'days').format();",
+							"",
+							"// Set environment variables",
+							"pm.environment.set('currentdate', specificCurrentDate);",
+							"pm.environment.set('pastdate', specificPastDate);",
+							"pm.environment.set('bookId', pm.globals.get(\"bookGuid\"))",
+							"pm.environment.set('customerId', pm.globals.get(\"customerGuid\"))",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 500\", function () {",
+							"    pm.response.to.have.status(500);",
+							"});",
+							"",
+							"pm.test(\"Response has error message\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Booking date must be today or in the future\");",
+							"});",
+							"",
+							"pm.test(\"Error message is correct\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Internal server error: Booking date must be today or in the future.\");",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"guid\": \"\",\n    \"bookingDate\": \"{{pastdate}}\",\n  \"returnDate\": \"{{currentdate}}\",\n  \"isAvailable\": true,\n  \"bookGuid\": \"{{bookId}}\",\n  \"customerGuid\": \"{{customerId}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5096/api/booking",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5096",
+					"path": [
+						"api",
+						"booking"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create booking - Body is Null",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var moment = require('moment');",
+							"",
+							"pm.environment.set('currentdate', moment().format())",
+							"pm.environment.set('pastdate', moment().subtract('25', 'days').format())"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 400\", function () {",
+							"  pm.response.to.have.status(400);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5096/api/booking",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5096",
+					"path": [
+						"api",
+						"booking"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Cerate booking - completed",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var moment = require('moment');",
+							"",
+							"var specificCurrentDate = moment().format();",
+							"var specificPastDate = moment().add(5, 'days').format();",
+							"",
+							"// Set environment variables",
+							"pm.environment.set('currentdate', specificCurrentDate);",
+							"pm.environment.set('pastdate', specificPastDate);",
+							"pm.environment.set('bookId', pm.globals.get(\"bookGuid\"))",
+							"pm.environment.set('customerId', pm.globals.get(\"customerGuid\"))",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Response is json\", function () {",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"// Test for presence of required fields",
+							"pm.test(\"Response has required fields\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('guid');",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"pm.globals.set(\"bookingGuid\", jsonData.guid);",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"guid\": \"\",\n    \"bookingDate\": \"{{currentdate}}\",\n  \"returnDate\": \"{{pastdate}}\",\n  \"isAvailable\": true,\n  \"bookGuid\": \"{{bookId}}\",\n  \"customerGuid\": \"{{customerId}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5096/api/booking",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5096",
+					"path": [
+						"api",
+						"booking"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create booking - book already booked",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var moment = require('moment');",
+							"",
+							"var specificCurrentDate = moment().format();",
+							"var specificPastDate = moment().add(5, 'days').format();",
+							"",
+							"// Set environment variables",
+							"pm.environment.set('currentdate', specificCurrentDate);",
+							"pm.environment.set('pastdate', specificPastDate);",
+							"pm.environment.set('bookId', pm.globals.get(\"bookGuid\"))",
+							"pm.environment.set('customerId', pm.globals.get(\"customerGuid\"))",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 500\", function () {",
+							"  pm.response.to.have.status(500);",
+							"});",
+							"",
+							"pm.test(\"Response has error message\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Book is not available\");",
+							"});",
+							"",
+							"pm.test(\"Error message is correct\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Internal server error: Book is not available\");",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"guid\": \"\",\n    \"bookingDate\": \"{{currentdate}}\",\n  \"returnDate\": \"{{pastdate}}\",\n  \"isAvailable\": true,\n  \"bookGuid\": \"{{bookId}}\",\n  \"customerGuid\": \"{{customerId}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5096/api/booking",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5096",
+					"path": [
+						"api",
+						"booking"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create booking - start date overlaps with another booking",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var moment = require('moment');",
+							"",
+							"var specificCurrentDate = moment().add(2, 'days').format();",
+							"var specificPastDate = moment().add(7, 'days').format();",
+							"",
+							"// Set environment variables",
+							"pm.environment.set('currentdate', specificCurrentDate);",
+							"pm.environment.set('pastdate', specificPastDate);",
+							"pm.environment.set('bookId', pm.globals.get(\"bookGuid\"))",
+							"pm.environment.set('customerId', pm.globals.get(\"customerGuid\"))",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 500\", function () {",
+							"  pm.response.to.have.status(500);",
+							"});",
+							"",
+							"pm.test(\"Response has error message\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Book is not available\");",
+							"});",
+							"",
+							"pm.test(\"Error message is correct\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Internal server error: Book is not available\");",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"guid\": \"\",\n    \"bookingDate\": \"{{currentdate}}\",\n  \"returnDate\": \"{{pastdate}}\",\n  \"isAvailable\": true,\n  \"bookGuid\": \"{{bookId}}\",\n  \"customerGuid\": \"{{customerId}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5096/api/booking",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5096",
+					"path": [
+						"api",
+						"booking"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update booking - past as startdate",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var moment = require('moment');",
+							"",
+							"var specificReturnDate = moment().add(5, 'days').format();",
+							"",
+							"var specificPasttDate = moment().subtract(2, 'days').format();",
+							"",
+							"// Set environment variables",
+							"pm.environment.set('guid', pm.globals.get(\"bookingGuid\"))",
+							"pm.environment.set('currentdate', specificReturnDate);",
+							"pm.environment.set('pastdate',specificPasttDate);",
+							"pm.environment.set('bookId', pm.globals.get(\"bookGuid\"));",
+							"pm.environment.set('customerId', pm.globals.get(\"customerGuid\"));",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 500\", function () {",
+							"  pm.response.to.have.status(500);",
+							"});",
+							"",
+							"pm.test(\"Response has error message\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Booking date must be today or in the future\");",
+							"});",
+							"",
+							"pm.test(\"Error message is correct\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Internal server error: Booking date must be today or in the future.\");",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"guid\": \"{{guid}}\",\n    \"bookingDate\": \"{{pastdate}}\",\n  \"returnDate\": \"{{currentdate}}\",\n  \"isAvailable\": true,\n  \"bookGuid\": \"{{bookId}}\",\n        \"customerGuid\": \"{{customerId}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5096/api/booking/{{bookingGuid}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5096",
+					"path": [
+						"api",
+						"booking",
+						"{{bookingGuid}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update booking - completed",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var moment = require('moment');",
+							"",
+							"var specificCurrentDate = moment().add(2, 'days').format();",
+							"var specificPastDate = moment().add(7, 'days').format();",
+							"",
+							"// Set environment variables",
+							"pm.environment.set('guid', pm.globals.get(\"bookingGuid\"))",
+							"pm.environment.set('currentdate', specificCurrentDate);",
+							"pm.environment.set('pastdate', specificPastDate);",
+							"pm.environment.set('bookId', pm.globals.get(\"bookGuid\"));",
+							"pm.environment.set('customerId', pm.globals.get(\"customerGuid\"));",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"guid\": \"{{guid}}\",\n    \"bookingDate\": \"{{currentdate}}\",\n  \"returnDate\": \"{{pastdate}}\",\n  \"isAvailable\": null,\n  \"bookGuid\": \"{{bookId}}\",\n  \"customerGuid\": \"{{customerId}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5096/api/booking/{{bookingGuid}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5096",
+					"path": [
+						"api",
+						"booking",
+						"{{bookingGuid}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Booking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Test for status code",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// Test for response format",
+							"pm.test(\"Response is JSON\", function () {",
+							"    pm.response.to.be.json;",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5096/api/booking",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5096",
+					"path": [
+						"api",
+						"booking"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Booking/id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Test for status code",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// Test for response format",
+							"pm.test(\"Response is JSON\", function () {",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"// Test for presence of 'guid' property",
+							"pm.test(\"Response has 'guid' property\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('guid');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5096/api/booking/{{bookingGuid}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5096",
+					"path": [
+						"api",
+						"booking",
+						"{{bookingGuid}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete booking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5096/api/booking/{{bookingGuid}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5096",
+					"path": [
+						"api",
+						"booking",
+						"{{bookingGuid}}"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

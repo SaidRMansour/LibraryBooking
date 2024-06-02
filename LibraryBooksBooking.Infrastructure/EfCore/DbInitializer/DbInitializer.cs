@@ -7,7 +7,7 @@ namespace LibraryBooksBooking.Infrastructure.EfCore.DbInitializer
         public void Initialize(LibraryBooksDbContext context)
         {
             // Delete just the WebApi DB
-            /* 
+            
             // Kontroller miljøvariabel
             var initializeDb = Environment.GetEnvironmentVariable("INITIALIZE_DB");
 
@@ -15,7 +15,7 @@ namespace LibraryBooksBooking.Infrastructure.EfCore.DbInitializer
             {
                 // *Databasen slettes kun i WebAPi projekt for Postman API test
                 context.Database.EnsureDeleted();
-            }*/
+            }
 
             // Delete and create MVC & WebApi DB
             context.Database.EnsureDeleted();

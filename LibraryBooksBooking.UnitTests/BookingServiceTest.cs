@@ -318,9 +318,6 @@ public class BookingServiceTest
         Assert.Equal(booking.BookingDate, bookingUpdated.BookingDate);
     }
     
-
-
-
     private static List<Customer> GetCustomers()
     {
         return new List<Customer>
